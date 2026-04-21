@@ -1,0 +1,574 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#05080f;--card:#0b1120;--border:rgba(99,179,237,.13);
+  --acc:#63b3ed;--acc2:#9f7aea;--acc3:#f6ad55;--acc4:#68d391;
+  --txt:#e2e8f0;--muted:rgba(226,232,240,.45);
+  --font:'Space Grotesk',system-ui,sans-serif;--mono:'Space Mono',monospace
+}
+body,html{width:100%;overflow-x:hidden}
+
+/* ─── CANVAS (touch/click playground) ─── */
+#space-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+
+.ripple{position:absolute;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) scale(0);animation:rpl .8s ease-out forwards;z-index:2}
+@keyframes rpl{to{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:13px 36px;background:rgba(5,8,15,.82);backdrop-filter:blur(22px);border-bottom:.5px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:11px;cursor:pointer}
+.logo-orb{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--acc);display:flex;align-items:center;justify-content:center;position:relative}
+.logo-core{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px rgba(99,179,237,.9)}
+.logo-sat-wrap{position:absolute;inset:-7px;border-radius:50%;border:.5px solid rgba(99,179,237,.25);animation:orb 4s linear infinite}
+@keyframes orb{to{transform:rotate(360deg)}}
+.logo-sat{position:absolute;top:-3px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--acc3);box-shadow:0 0 6px var(--acc3)}
+.logo-txt{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.4px}
+.logo-txt em{color:var(--acc);font-style:normal}
+.logo-sub{font-size:9px;font-family:var(--mono);color:var(--muted);letter-spacing:2px;display:block;margin-top:-2px}
+.nav-links{display:flex;gap:28px}
+.nav-links a{font-size:13px;color:var(--muted);cursor:pointer;transition:color .2s;font-weight:400}
+.nav-links a:hover{color:var(--acc)}
+.nav-join{padding:8px 20px;border:.5px solid var(--acc);border-radius:22px;color:var(--acc);font-size:13px;font-family:var(--font);background:rgba(99,179,237,.06);cursor:pointer;transition:background .2s}
+.nav-join:hover{background:rgba(99,179,237,.18)}
+.menu-toggle{
+  display:none;
+}
+
+/* Mobile navbar */
+@media(max-width:650px){
+  .nav-links{display:none}
+
+  .menu-toggle{
+    display:block;
+    font-size:22px;
+    color:#fff;
+    cursor:pointer;
+  }
+}
+/* ─── PAGE ─── */
+.page{background:var(--bg);color:var(--txt);font-family:var(--font);position:relative;min-height:100vh;overflow:hidden}
+
+/* ─── HERO ─── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 36px 60px;overflow:hidden;cursor:crosshair}
+.hero-touch-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:11px;font-family:var(--mono);color:rgba(99,179,237,.35);letter-spacing:1.5px;pointer-events:none;animation:hint 2.5s ease-in-out infinite}
+@keyframes hint{0%,100%{opacity:.35}50%{opacity:.9}}
+.hero-inner{position:relative;z-index:3;text-align:center;max-width:700px}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 16px;border:.5px solid rgba(99,179,237,.32);border-radius:20px;font-size:11px;font-family:var(--mono);color:var(--acc);letter-spacing:1.5px;margin-bottom:26px}
+.badge-dot{width:6px;height:6px;background:var(--acc4);border-radius:50%;animation:bdot 1.4s infinite}
+@keyframes bdot{0%,100%{opacity:1}50%{opacity:.2}}
+.hero h1{font-size:clamp(38px,6vw,68px);font-weight:700;line-height:1.04;letter-spacing:-2px;margin-bottom:20px}
+.h1-grad{background:linear-gradient(135deg,#fff 0%,#63b3ed 30%,#9f7aea 65%,#f6ad55 100%);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gsh 6s linear infinite}
+@keyframes gsh{0%{background-position:0%}100%{background-position:200%}}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.75;max-width:520px;margin:0 auto 36px}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-p{padding:13px 32px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:28px;color:#fff;font-size:14px;font-family:var(--font);font-weight:600;cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:0 0 0 0 rgba(99,179,237,.3)}
+.btn-p:hover{transform:scale(1.04);box-shadow:0 0 18px rgba(99,179,237,.25)}
+.btn-s{padding:13px 30px;border:.5px solid rgba(255,255,255,.16);border-radius:28px;color:rgba(226,232,240,.75);font-size:14px;font-family:var(--font);background:rgba(255,255,255,.04);cursor:pointer;transition:background .2s,border-color .2s}
+.btn-s:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.3)}
+.hero-stats{display:flex;gap:36px;justify-content:center;flex-wrap:wrap;margin-top:48px;padding-top:32px;border-top:.5px solid var(--border)}
+.hst-n{font-size:26px;font-weight:700;font-family:var(--mono);color:#fff;text-align:center}
+.hst-l{font-size:10px;color:var(--muted);letter-spacing:.5px;text-align:center;margin-top:2px}
+
+.scroll-ind{position:absolute;bottom:18px;right:36px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5}
+.scroll-ind-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--acc),transparent);animation:scrl 2s ease-in-out infinite}
+@keyframes scrl{0%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1}100%{opacity:0;transform:scaleY(1);transform-origin:top}}
+.scroll-ind span{font-size:9px;font-family:var(--mono);color:rgba(99,179,237,.35);letter-spacing:1.5px;writing-mode:vertical-lr}
+
+.const-section{position:relative;z-index:2;padding:80px 36px;background:var(--bg)}
+.sec-tag{font-size:10px;font-family:var(--mono);letter-spacing:2.5px;color:var(--acc);margin-bottom:12px}
+.sec-title{font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:12px;line-height:1.15}
+.sec-sub{font-size:14px;color:var(--muted);line-height:1.7;max-width:520px;margin-bottom:40px}
+.const-wrap{position:relative;width:100%;min-height:240px;height:clamp(240px,40vh,320px);border:.5px solid var(--border);border-radius:20px;background:rgba(10,17,35,.6);cursor:crosshair;overflow:hidden;user-select:none;}
+.const-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;font-family:var(--mono);color:rgba(99,179,237,.25);letter-spacing:1px;pointer-events:none;text-align:center;line-height:1.8}
+#const-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+.events-section{position:relative;z-index:2;padding:60px 36px;background:rgba(10,17,35,.4)}
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:36px}
+.ev-card{background:var(--card);border:.5px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .28s,border-color .28s}
+.ev-card:hover,.ev-card.active{transform:translateY(-6px);border-color:rgba(99,179,237,.4)}
+.ev-img{width:100%;height:155px;object-fit:cover;filter:brightness(.75) saturate(.85);transition:filter .3s}
+.ev-card:hover .ev-img,.ev-card.active .ev-img{filter:brightness(.92) saturate(1.1)}
+.ev-body{padding:18px}
+.ev-tag{display:inline-block;font-size:10px;font-family:var(--mono);letter-spacing:1px;padding:3px 10px;border-radius:12px;margin-bottom:10px}
+.tag-solar{background:rgba(246,173,85,.12);color:#f6ad55;border:.5px solid rgba(246,173,85,.3)}
+.tag-out{background:rgba(104,211,145,.12);color:#68d391;border:.5px solid rgba(104,211,145,.3)}
+.tag-ai{background:rgba(159,122,234,.12);color:#9f7aea;border:.5px solid rgba(159,122,234,.3)}
+.tag-photo{background:rgba(99,179,237,.12);color:#63b3ed;border:.5px solid rgba(99,179,237,.3)}
+.ev-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:6px}
+.ev-desc{font-size:12px;color:var(--muted);line-height:1.65}
+
+.vm-section{position:relative;z-index:2;padding:80px 36px;background:var(--bg)}
+.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:36px}
+.vm-card{background:var(--card);border:.5px solid var(--border);border-radius:20px;padding:32px;transition:border-color .3s,transform .28s;cursor:default}
+.vm-card:hover{border-color:rgba(99,179,237,.35);transform:translateY(-4px)}
+.vm-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:22px}
+.vmi-blue{background:rgba(99,179,237,.12)}
+.vmi-purple{background:rgba(159,122,234,.12)}
+.vm-head{font-size:17px;font-weight:600;color:#fff;margin-bottom:10px}
+.vm-body{font-size:13px;color:var(--muted);line-height:1.75}
+
+/* ─── GALLERY ─── */
+.gallery-section{position:relative;z-index:2;padding:80px 36px;background:rgba(10,17,35,.4)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:36px;}
+.gal-item{border-radius:14px;overflow:hidden;cursor:pointer;position:relative}
+.gal-item img{width:100%;height:160px;object-fit:cover;display:block;filter:brightness(.7) saturate(.8);transition:transform .35s,filter .35s}
+.gal-item:hover img{transform:scale(1.07);filter:brightness(1) saturate(1.1)}
+.gal-overlay{position:absolute;inset:0;background:rgba(99,179,237,.0);transition:background .3s;border-radius:14px}
+.gal-item:hover .gal-overlay{background:rgba(99,179,237,.08)}
+
+/* ─── LIGHTBOX ─── */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(5,8,15,.92);z-index:200;align-items:center;justify-content:center;padding:20px}
+.lightbox.open{display:flex}
+.lb-img{max-width:90vw;max-height:82vh;border-radius:16px;border:.5px solid var(--border)}
+.lb-close{position:absolute;top:20px;right:28px;font-size:28px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:var(--font);line-height:1;transition:color .2s}
+.lb-close:hover{color:#fff}
+
+/* ─── ANNOUNCEMENTS ─── */
+.ann-section{position:relative;z-index:2;padding:80px 36px;background:var(--bg)}
+.ann-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:36px}
+.ann-card{display:flex;gap:16px;align-items:flex-start;background:var(--card);border:.5px solid var(--border);border-radius:16px;padding:22px;transition:border-color .28s,transform .28s;cursor:pointer}
+.ann-card:hover{border-color:rgba(159,122,234,.38);transform:translateX(4px)}
+.ann-thumb{width:66px;height:66px;border-radius:12px;object-fit:cover;flex-shrink:0;border:.5px solid var(--border)}
+.ann-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:7px}
+.ann-text{font-size:12px;color:var(--muted);line-height:1.65}
+
+/* ─── CONTACT ─── */
+.contact-section{position:relative;z-index:2;padding:80px 36px;background:rgba(10,17,35,.4)}
+.contact-inner{max-width:500px;margin:0 auto;text-align:center}
+.c-form{display:flex;flex-direction:column;gap:13px;margin-top:28px;text-align:left}
+.c-inp{padding:13px 18px;background:var(--card);border:.5px solid var(--border);border-radius:14px;color:var(--txt);font-size:14px;font-family:var(--font);outline:none;transition:border-color .2s;width:100%}
+.c-inp::placeholder{color:rgba(226,232,240,.22)}
+.c-inp:focus{border-color:rgba(99,179,237,.5)}
+.c-ta{resize:vertical;min-height:100px}
+.c-btn{padding:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:14px;color:#fff;font-size:15px;font-family:var(--font);font-weight:600;cursor:pointer;letter-spacing:.3px;transition:opacity .2s,transform .18s}
+.c-btn:hover{opacity:.88;transform:scale(1.01)}
+
+/* ─── FOOTER ─── */
+.footer{position:relative;z-index:2;padding:32px 36px;border-top:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;background:var(--bg)}
+.footer-brand{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.footer-brand b{color:var(--acc)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;cursor:pointer;font-family:var(--mono);transition:color .2s}
+.footer-links a:hover{color:var(--acc)}
+
+/* ─── TICKER ─── */
+.ticker{position:relative;z-index:10;background:rgba(99,179,237,.06);border-bottom:.5px solid var(--border);padding:8px 0;overflow:hidden}
+.tick-inner{display:flex;gap:60px;width:max-content;animation:tick 28s linear infinite;white-space:nowrap}
+@keyframes tick{to{transform:translateX(-50%)}}
+.tick-inner span{font-size:10px;font-family:var(--mono);color:var(--acc);letter-spacing:1.5px}
+.tick-sep{color:var(--acc3);margin:0 6px}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:650px){
+  .nav-links,.nav-join{display:none}
+  .vm-grid,.ann-grid{grid-template-columns:1fr}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .nav{padding:13px 20px}
+  .hero,.const-section,.vm-section,.events-section,.gallery-section,.ann-section,.contact-section{padding-left:20px;padding-right:20px}
+  .footer{padding:24px 20px;flex-direction:column;align-items:flex-start}
+}
+/* ─── TABLET ─── */
+@media (max-width:1024px){
+  .gallery-grid{grid-template-columns:repeat(3,1fr)}
+  .vm-grid{grid-template-columns:1fr}
+  .ann-grid{grid-template-columns:1fr}
+}
+
+/* ─── MOBILE ─── */
+@media (max-width:768px){
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+
+  .hero{
+    padding:60px 20px 40px;
+    min-height:90vh;
+  }
+
+  .hero h1{
+    font-size:clamp(28px,8vw,42px);
+  }
+
+  .hero-sub{
+    font-size:14px;
+  }
+
+  .hero-stats{
+    gap:20px;
+  }
+
+  .ev-img{
+    height:130px;
+  }
+}
+
+/* ─── SMALL PHONES ─── */
+@media (max-width:480px){
+  .gallery-grid{grid-template-columns:1fr}
+
+  .hero-btns{
+    flex-direction:column;
+  }
+
+  .btn-p,.btn-s{
+    width:100%;
+  }
+
+  .nav{
+    padding:10px 14px;
+  }
+}
+
+/* ─── CURSOR GLOW ─── */
+#cursor-glow{position:fixed;pointer-events:none;z-index:1000;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(99,179,237,.07) 0%,transparent 70%);transform:translate(-50%,-50%);transition:left .08s,top .08s;display:none}
+img{
+  max-width:100%;
+  height:auto;
+}
+</style>
+
+<div id="cursor-glow"></div>
+<div class="lightbox" id="lb"><button class="lb-close" id="lb-close">&#x2715;</button><img class="lb-img" id="lb-img" src="" alt="gallery"></div>
+
+<div class="page" id="page">
+  <canvas id="space-canvas"></canvas>
+
+  <div class="ticker">
+    <div class="tick-inner">
+      <span>&#9733; Lyrid Meteor Shower Watch<span class="tick-sep">·</span>Apr 22–23</span>
+      <span>&#9733; Astrophotography Workshop<span class="tick-sep">·</span>Upcoming</span>
+      <span>&#9733; AI/ML for Space Exploration<span class="tick-sep">·</span>Drishti'24</span>
+      <span>&#9733; GBFK Outreach Program<span class="tick-sep">·</span>Global Science Festival Kerala</span>
+      <span>&#9733; Expedition Aditya<span class="tick-sep">·</span>Solar Probing</span>
+      <span>&#9733; Technical Team Launched<span class="tick-sep">·</span>AstroCET 2024</span>
+      <span>&#9733; Lyrid Meteor Shower Watch<span class="tick-sep">·</span>Apr 22–23</span>
+      <span>&#9733; Astrophotography Workshop<span class="tick-sep">·</span>Upcoming</span>
+      <span>&#9733; AI/ML for Space Exploration<span class="tick-sep">·</span>Drishti'24</span>
+      <span>&#9733; GBFK Outreach Program<span class="tick-sep">·</span>Global Science Festival Kerala</span>
+      <span>&#9733; Expedition Aditya<span class="tick-sep">·</span>Solar Probing</span>
+      <span>&#9733; Technical Team Launched<span class="tick-sep">·</span>AstroCET 2024</span>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="logo-orb"><div class="logo-core"></div><div class="logo-sat-wrap"><div class="logo-sat"></div></div></div>
+      <div><div class="logo-txt">astro<em>CET</em></div><span class="logo-sub">CET Trivandrum</span></div>
+    </div>
+    <div class="nav-links">
+      <a>Home</a><a>Events</a><a>Blogs</a><a>Team</a><a>Contact</a>
+    </div>
+    <button class="nav-join">Join us</button>
+    <div class="menu-toggle">☰</div>
+  </nav>
+
+  <!-- HERO - touch/click to spawn stars -->
+  <section class="hero" id="hero-section">
+    <div class="hero-inner">
+      <div class="hero-badge"><div class="badge-dot"></div>Est. 2019 &nbsp;&#x2022;&nbsp; CET Trivandrum</div>
+      <h1><span class="h1-grad">Explore the cosmos.<br>Together.</span></h1>
+      <p class="hero-sub">AstroCET is the astronomy club of College of Engineering Trivandrum — fostering celestial curiosity through workshops, outreach, and hands-on exploration. <strong style="color:rgba(99,179,237,.55);font-weight:400">Tap anywhere in the sky above.</strong></p>
+      <div class="hero-btns">
+        <button class="btn-p" onclick="sendPrompt('Tell me about upcoming AstroCET events')">Explore Events &#x2197;</button>
+        <button class="btn-s">View Gallery</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hst-n">2019</div><div class="hst-l">Founded</div></div>
+        <div><div class="hst-n">70+</div><div class="hst-l">Workshop members</div></div>
+        <div><div class="hst-n">6+</div><div class="hst-l">Major events</div></div>
+        <div><div class="hst-n">CET</div><div class="hst-l">Trivandrum</div></div>
+      </div>
+    </div>
+    <div class="hero-touch-hint">&#x2022; TOUCH THE VOID &nbsp;&#x2022;&nbsp; SPAWN STARS &#x2022;</div>
+    <div class="scroll-ind"><div class="scroll-ind-line"></div><span>scroll</span></div>
+  </section>
+
+  <!-- INTERACTIVE CONSTELLATION BOARD -->
+  <section class="const-section">
+    <p class="sec-tag">Interactive sky</p>
+    <h2 class="sec-title">Draw your own constellation</h2>
+    <p class="sec-sub">Click or touch to place stars. Connect them — draw your own constellation on a live star field. Double-tap to clear.</p>
+    <div class="const-wrap" id="const-wrap">
+      <canvas id="const-canvas"></canvas>
+      <div class="const-hint" id="const-hint">Tap anywhere to place a star<br><span style="font-size:10px;opacity:.6">Double-tap to clear</span></div>
+    </div>
+  </section>
+
+  <!-- PAST EVENTS -->
+  <section class="events-section">
+    <p class="sec-tag">What we've done</p>
+    <h2 class="sec-title">Past events</h2>
+    <p class="sec-sub">From solar workshops to global outreach — every event is a step deeper into the universe.</p>
+    <div class="events-grid">
+      <div class="ev-card" onclick="this.classList.toggle('active')">
+        <img class="ev-img" src="https://astrocet.vercel.app/images/pastevents/solarprobing.jpg" alt="Solar" onerror="this.style.background='#0b1120';this.style.height='155px'">
+        <div class="ev-body"><span class="ev-tag tag-solar">Solar</span><div class="ev-title">Solar Probing Workshop</div><div class="ev-desc">Expedition Aditya — 26 Nov 2023, in collaboration with Shastra Snehi. Solar probing and sunspot viewing with leading experts.</div></div>
+      </div>
+      <div class="ev-card" onclick="this.classList.toggle('active')">
+        <img class="ev-img" src="https://astrocet.vercel.app/images/pastevents/GBFKoutreach.jpg" alt="GBFK" onerror="this.style.background='#0b1120';this.style.height='155px'">
+        <div class="ev-body"><span class="ev-tag tag-out">Outreach</span><div class="ev-title">GBFK Outreach Program</div><div class="ev-desc">Dr. Sarita Vig from IIST at the Global Science Festival Kerala, followed by a sky-gazing session with the Breakthrough Science Society.</div></div>
+      </div>
+      <div class="ev-card" onclick="this.classList.toggle('active')">
+        <img class="ev-img" src="https://astrocet.vercel.app/images/pastevents/workhopai.jpg" alt="AI/ML" onerror="this.style.background='#0b1120';this.style.height='155px'">
+        <div class="ev-body"><span class="ev-tag tag-ai">AI / ML</span><div class="ev-title">AI/ML for Space Exploration</div><div class="ev-desc">Drishti'24 — 70+ participants, Python data analysis, ML in astronomy with real astronomical data. Collaboration with HT Labs India.</div></div>
+      </div>
+      <div class="ev-card" onclick="this.classList.toggle('active')">
+        <img class="ev-img" src="https://astrocet.vercel.app/images/pastevents/astrophotographwork.jpg" alt="Astrophoto" onerror="this.style.background='#0b1120';this.style.height='155px'">
+        <div class="ev-body"><span class="ev-tag tag-photo">Photography</span><div class="ev-title">Astrophotography Workshop</div><div class="ev-desc">25 Nov 2023 — with CET Shutterbugs and AASTRO Kerala. Led by expert Sarath Prabhavu J — a deep dive into capturing the night sky.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISION / MISSION -->
+  <section class="vm-section">
+    <p class="sec-tag">Who we are</p>
+    <h2 class="sec-title">Vision &amp; mission</h2>
+    <p class="sec-sub">From a humble hobby club in 2019 to a beacon of celestial exploration.</p>
+    <div class="vm-grid">
+      <div class="vm-card">
+        <div class="vm-icon-wrap vmi-blue">&#x1F52D;</div>
+        <div class="vm-head">Vision</div>
+        <p class="vm-body">AstroCET aims to lead in astronomy education and outreach, inspiring students and the public to explore the cosmos. By fostering skill development, collaborating with institutions, and promoting innovation, we seek to create an inclusive environment and contribute to scientific knowledge.</p>
+      </div>
+      <div class="vm-card">
+        <div class="vm-icon-wrap vmi-purple">&#x1F680;</div>
+        <div class="vm-head">Mission</div>
+        <p class="vm-body">Our primary mission is to ignite a passion for astronomy among students and the general public, providing a platform for learning, exploration, and innovation. From solar observation to AI-powered space research, AstroCET bridges curiosity and science.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery-section">
+    <p class="sec-tag">Captured moments</p>
+    <h2 class="sec-title">Gallery</h2>
+    <p class="sec-sub">Tap any photo to expand. Glimpses of AstroCET through the years.</p>
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg1.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg1.JPG" alt="g1"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg2.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg2.JPG" alt="g2"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg3.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg3.JPG" alt="g3"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg4.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg4.JPG" alt="g4"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg5.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg5.JPG" alt="g5"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg6.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg6.JPG" alt="g6"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleryimg7.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleryimg7.JPG" alt="g7"><div class="gal-overlay"></div></div>
+      <div class="gal-item" data-src="https://astrocet.vercel.app/images/gallery/galleyimg8.JPG"><img src="https://astrocet.vercel.app/images/gallery/galleyimg8.JPG" alt="g8"><div class="gal-overlay"></div></div>
+    </div>
+  </section>
+
+  <!-- ANNOUNCEMENTS -->
+  <section class="ann-section">
+    <p class="sec-tag">Latest updates</p>
+    <h2 class="sec-title">Announcements</h2>
+    <div class="ann-grid">
+      <div class="ann-card">
+        <img class="ann-thumb" src="https://astrocet.vercel.app/images/announcements/techteam.jpeg" alt="tech team" onerror="this.style.background='#0b1120'">
+        <div><div class="ann-title">Unveiling our Technical Team!</div><p class="ann-text">We're excited to announce the formation of our Technical Team at AstroCET — developing new tools, conducting research, and creating engaging activities for members and the community.</p></div>
+      </div>
+      <div class="ann-card">
+        <img class="ann-thumb" src="https://astrocet.vercel.app/images/announcements/weblaunch.jpeg" alt="web launch" onerror="this.style.background='#0b1120'">
+        <div><div class="ann-title">Website launch</div><p class="ann-text">We are excited to announce the launch of the new AstroCET website! Your go-to resource for all things astronomy — events, resources, and community activities.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contactus">
+    <div class="contact-inner">
+      <p class="sec-tag" style="text-align:center">Get in touch</p>
+      <h2 class="sec-title" style="text-align:center">Contact us</h2>
+      <p class="sec-sub" style="text-align:center;margin:0 auto 0">Have a question, collaboration idea, or just want to stargaze with us?</p>
+      <div class="c-form">
+        <input class="c-inp" type="text" placeholder="Your name">
+        <input class="c-inp" type="email" placeholder="Email address">
+        <textarea class="c-inp c-ta" placeholder="Your message..."></textarea>
+        <button class="c-btn">Send message</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-brand">Made by <b>AstroCET</b> &nbsp;·&nbsp; College of Engineering Trivandrum &nbsp;·&nbsp; All rights reserved.</div>
+    <div class="footer-links"><a>Instagram</a><a>LinkedIn</a><a>YouTube</a><a>Blogs</a><a>About</a></div>
+  </footer>
+</div>
+
+<script>
+(function(){
+
+const cg=document.getElementById('cursor-glow');
+document.addEventListener('mousemove',e=>{cg.style.display='block';cg.style.left=e.clientX+'px';cg.style.top=e.clientY+'px'});
+
+/* ── SPACE CANVAS – animated star field ── */
+const sc=document.getElementById('space-canvas');
+const sctx=sc.getContext('2d');
+let W,H,stars=[];
+function resizeSC(){W=sc.width=sc.offsetWidth;H=sc.height=document.getElementById('page').scrollHeight||window.innerHeight}
+function mkStar(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()<.12?1.6:Math.random()<.35?1:0.5,a:Math.random(),da:(Math.random()-.5)*.008,vx:(Math.random()-.5)*.08,vy:(Math.random()-.5)*.08}}
+function initStars(){stars=[];for(let i=0;i<220;i++)stars.push(mkStar())}
+function drawStars(){
+  sctx.clearRect(0,0,W,H);
+  for(let s of stars){
+    s.x+=s.vx;s.y+=s.vy;s.a+=s.da;
+    if(s.a<0||s.a>1)s.da*=-1;
+    if(s.x<0)s.x=W;if(s.x>W)s.x=0;
+    if(s.y<0)s.y=H;if(s.y>H)s.y=0;
+    sctx.beginPath();sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fillStyle=`rgba(255,255,255,${Math.max(0,Math.min(1,s.a))})`;
+    sctx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+resizeSC();initStars();drawStars();
+window.addEventListener('resize',()=>{resizeSC();initStars()});
+
+/* ── HERO TOUCH/CLICK – spawn burst stars + ripple ── */
+const heroSection=document.getElementById('hero-section');
+function spawnBurst(x,y,container){
+  const rect=container.getBoundingClientRect();
+  const cx=x-rect.left,cy=y-rect.top+container.scrollTop;
+  const N=18+Math.floor(Math.random()*12);
+  const hues=['#63b3ed','#9f7aea','#f6ad55','#68d391','#fff','#fc8181'];
+  for(let i=0;i<N;i++){
+    const dot=document.createElement('div');
+    const color=hues[Math.floor(Math.random()*hues.length)];
+    const sz=Math.random()<.2?3:Math.random()<.5?2:1.5;
+    const angle=Math.random()*Math.PI*2;
+    const dist=30+Math.random()*90;
+    const tx=Math.cos(angle)*dist,ty=Math.sin(angle)*dist;
+    const dur=600+Math.random()*700;
+    dot.style.cssText=`position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:${color};left:${cx}px;top:${cy}px;pointer-events:none;z-index:5;box-shadow:0 0 ${sz*3}px ${color};transition:transform ${dur}ms ease-out,opacity ${dur}ms ease-out;transform:translate(-50%,-50%)`;
+    container.appendChild(dot);
+    requestAnimationFrame(()=>{
+      dot.style.transform=`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px))`;
+      dot.style.opacity='0';
+    });
+    setTimeout(()=>dot.remove(),dur+50);
+  }
+  const ripEl=document.createElement('div');
+  ripEl.className='ripple';
+  ripEl.style.cssText=`left:${cx}px;top:${cy}px;width:160px;height:160px;border:1.5px solid rgba(99,179,237,.45)`;
+  container.appendChild(ripEl);
+  setTimeout(()=>ripEl.remove(),820);
+}
+
+heroSection.addEventListener('click',function(e){
+  if(e.target.closest('button')||e.target.closest('.hero-inner'))return;
+  spawnBurst(e.clientX,e.clientY,heroSection);
+});
+heroSection.addEventListener('touchstart',function(e){
+  for(let t of e.touches){
+    if(document.elementFromPoint(t.clientX,t.clientY)?.closest('button')||
+       document.elementFromPoint(t.clientX,t.clientY)?.closest('.hero-inner'))continue;
+    spawnBurst(t.clientX,t.clientY,heroSection);
+  }
+},{passive:true});
+
+/* ── CONSTELLATION CANVAS ── */
+const cw=document.getElementById('const-wrap');
+const cc=document.getElementById('const-canvas');
+const cctx=cc.getContext('2d');
+const hint=document.getElementById('const-hint');
+let constStars=[],lastTap=0;
+
+function resizeCC(){cc.width=cw.offsetWidth;cc.height=cw.offsetHeight;redrawConst()}
+function redrawConst(){
+  cctx.clearRect(0,0,cc.width,cc.height);
+  if(constStars.length===0)return;
+  hint.style.display='none';
+  cctx.strokeStyle='rgba(99,179,237,0.28)';
+  cctx.lineWidth=1;
+  cctx.setLineDash([4,6]);
+  cctx.beginPath();
+  for(let i=0;i<constStars.length;i++){
+    const s=constStars[i];
+    if(i===0)cctx.moveTo(s.x,s.y);else cctx.lineTo(s.x,s.y);
+  }
+  cctx.stroke();
+  cctx.setLineDash([]);
+  for(let s of constStars){
+    cctx.beginPath();cctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    cctx.fillStyle=s.color;
+    cctx.shadowBlur=12;cctx.shadowColor=s.color;
+    cctx.fill();
+    cctx.shadowBlur=0;
+    if(constStars.length===1){
+      cctx.beginPath();
+      for(let r=s.r+4;r<=s.r+18;r+=6){
+        cctx.arc(s.x,s.y,r,0,Math.PI*2);
+      }
+      cctx.strokeStyle='rgba(99,179,237,0.15)';
+      cctx.lineWidth=.5;
+      cctx.stroke();
+    }
+  }
+}
+
+function addConstStar(ex,ey){
+  const rect=cc.getBoundingClientRect();
+  const x=ex-rect.left,y=ey-rect.top;
+  const colors=['#fff','#63b3ed','#9f7aea','#f6ad55','#fc8181','#68d391'];
+  const r=Math.random()<.2?4:Math.random()<.5?2.5:1.8;
+  constStars.push({x,y,r,color:colors[Math.floor(Math.random()*colors.length)]});
+  redrawConst();
+}
+
+function clearConst(){constStars=[];hint.style.display='flex';cctx.clearRect(0,0,cc.width,cc.height)}
+
+cw.addEventListener('click',e=>{
+  const now=Date.now();
+  if(now-lastTap<350){clearConst();lastTap=0;return}
+  lastTap=now;
+  addConstStar(e.clientX,e.clientY);
+});
+cw.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const now=Date.now();
+  if(now-lastTap<350){clearConst();lastTap=0;return}
+  lastTap=now;
+  for(let t of e.touches)addConstStar(t.clientX,t.clientY);
+},{passive:false});
+cw.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  for(let t of e.touches)addConstStar(t.clientX,t.clientY);
+},{passive:false});
+
+resizeCC();
+window.addEventListener('resize',resizeCC);
+
+/* ── GALLERY LIGHTBOX ── */
+const lb=document.getElementById('lb');
+const lbImg=document.getElementById('lb-img');
+document.getElementById('lb-close').onclick=()=>lb.classList.remove('open');
+lb.addEventListener('click',e=>{if(e.target===lb)lb.classList.remove('open')});
+document.querySelectorAll('.gal-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    lbImg.src=item.dataset.src;
+    lb.classList.add('open');
+  });
+  item.addEventListener('touchend',e=>{
+    e.preventDefault();
+    lbImg.src=item.dataset.src;
+    lb.classList.add('open');
+  },{passive:false});
+});
+
+/* ── SCROLL REVEAL (IntersectionObserver) ── */
+const revEls=document.querySelectorAll('.ev-card,.vm-card,.ann-card,.gal-item');
+revEls.forEach(el=>{el.style.opacity='0';el.style.transform='translateY(22px)';el.style.transition='opacity .55s ease,transform .55s ease'});
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';io.unobserve(e.target)}});
+},{threshold:.12});
+revEls.forEach(el=>io.observe(el));
+
+/* ── PARALLAX on hero stars based on pointer/tilt ── */
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*18;my=(e.clientY/window.innerHeight-.5)*12});
+if(window.DeviceOrientationEvent){
+  window.addEventListener('deviceorientation',e=>{
+    if(e.gamma!==null){mx=(e.gamma/45)*12;my=(e.beta/90)*8}
+  });
+}
+
+})();
+</script>
